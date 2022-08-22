@@ -7,6 +7,8 @@ import addDatabase from '../../features/dataModel/addDatabase';
 import ViewHeader from '../../components/headers/ViewHeader';
 
 import { Button, Form, FormInstance, Input, Layout, Modal, Spin, Alert } from 'antd';
+import EntityAccordion from '../../components/commons/EntityAccordion';
+import test from '../../utils/dbManager/tests';
 
 require('antd/lib/modal/style');
 require('antd/lib/layout/style');
@@ -18,6 +20,8 @@ require('antd/lib/alert/style');
 interface ListDabaseProps {
     //
 }
+
+test();
 
 const customValidator = async (form: FormInstance) => {
     if (form) {
@@ -100,9 +104,11 @@ const ListDatabase = (props: ListDabaseProps) => {
                 ]}
             />
             <Layout.Content className='listDatabase' style={{ padding: '25px 50px' }}>
-                
+                <EntityAccordion />
                 List some databases!
             </Layout.Content>
+            {/* Consider exporting modal and alert logic to custom hook
+            May need to pass the useState's and selector variables */}
             {databaseAdditionAlertVisibile && <Spin spinning={isAddingDatabaseDelayed}>
                 <Alert
                     style={{ width: '50%' }}
