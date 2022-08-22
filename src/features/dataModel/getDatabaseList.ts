@@ -6,6 +6,7 @@ const loadDatabaseList = () => {
     return databaseList;
 }
 
+// Consider moving to utils/indexedDB
 const checkIndexedDb = ( name: string ): Promise<Boolean> => {
     return new Promise( (resolve, reject) => {
         const DBOpenRequest = window.indexedDB.open(name);
@@ -23,12 +24,38 @@ const checkIndexedDb = ( name: string ): Promise<Boolean> => {
     });
 }
 
+const deleteIndexedDB = ( name: string ) => {
+    return new Promise( (resolve, reject) => {
+        const DBDeleteRequest = window.indexedDB.deleteDatabase(name);
+
+        DBDeleteRequest.onerror = (event) => {
+            console.log(`Error while fetching indexedDB with name: ${name}`);
+            reject(false);
+        };
+          
+        DBDeleteRequest.onsuccess = (event) => {
+            resolve(true);
+        }
+
+    });
+}
+
+const deletePouchDB = async ( name: string ) => {
+    let prefixedName = '_pouch_'.concat(name);
+    let result = await deleteIndexedDB(prefixedName);
+    if (result) {
+        let databaseList = new LocalStorageList('databaseList');
+        databaseList.removeElement(name);
+        return result;
+    } // else checkLogs
+}
+
 const checkPouchDB = ( name: string ) => {
     let prefixedName = '_pouch_'.concat(name);
     return checkIndexedDb(prefixedName);
 }
 
-const checkPouchDBs = ( list: (string | number)[] ): Promise<string[]> => {
+const checkPouchDBs = ( list: (string | number)[] ): Promise<{name: string}[]> => {
     return new Promise( async (resolve, reject) => {
         let processedList = [],
             okList = [];
@@ -36,9 +63,12 @@ const checkPouchDBs = ( list: (string | number)[] ): Promise<string[]> => {
             let databaseName = list[i];
             // TODO: extract into a promise that exists only when finished
             if ( await checkPouchDB(""+databaseName) ) {
-                okList.push(''+databaseName);
+                okList.push({
+                    name: ''+databaseName
+                });
             } else {
-                console.log(`Database with name "${databaseName}" does not exists`)
+                let clearedUnused = await deletePouchDB(''+databaseName);
+                console.log(`Database with name "${databaseName}" does not exists`, clearedUnused);
             }
             processedList.push(''+databaseName);
         }

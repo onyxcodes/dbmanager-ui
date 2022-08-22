@@ -3,7 +3,7 @@ import getDatabaseList from './getDatabaseList';
 import addDatabase from './addDatabase';
 
 export interface DataModelState {
-    databaseList: string[];
+    databaseList: {name: string}[];
     classList: string[];
     databaseAddition: {
         pending: boolean,

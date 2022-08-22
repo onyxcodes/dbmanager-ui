@@ -25,8 +25,17 @@ const testDataModel = async () => {
     TestAnotherAttrWithClass = await Attribute.build(TestAnotherAttrWithClass);
 }
 
+const testFind = async () => {
+    let testDbMg = new DbManager("testDb");
+    testDbMg = await DbManager.build(testDbMg);
+    let filteredClasses = await testDbMg.getClasses(["TestClass"]);
+    debugger;
+
+}
+
 const test = () => {
-    testDataModel();
+    // testDataModel();
+    testFind();
 }
 
 export default test;

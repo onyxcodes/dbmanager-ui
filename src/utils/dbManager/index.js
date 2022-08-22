@@ -1,3 +1,5 @@
+import { rejects } from 'assert'
+import { resolve } from 'path'
 import PouchDB from 'pouchdb-browser'
 import Find from 'pouchdb-find'
 import * as replicationStream from "pouchdb-replication-stream"
@@ -73,7 +75,6 @@ class DbManager {
                 console.log("initdb - db already initialized, consider purge")
             }
             this.lastDocId = lastDocId;
-            debugger;
             return this;
         } catch (e) {
             throw new Error("initdb -  something went wrong", e);
@@ -194,7 +195,7 @@ class DbManager {
                 index: {
                     fields: ['domain', '_id']
                 }
-            })
+            });
             logger.debug({ "response": indexRes }, 'getDomainModel - Fetched search index');
             let findRes = await db.find({
                 selector: { domain: 'domain', _id: name },
@@ -300,7 +301,6 @@ class DbManager {
                 // therefore throw error
             } else {
                 //generate controlled docId
-                debugger;
                 isNewDoc = true;
                 docId = ""+(this.lastDocId+1);
             }
@@ -325,13 +325,67 @@ class DbManager {
     }
 
     async addClass( classObj ) {
-        // let doc = this.db.prepareDoc(null, classObj.getType(), classObj);
-        let result = await this.createDoc(null, classObj.getType(), classObj.getModel());
-        return result;
+        // Check for existance
+        // let exists = awaut getClass()
+        let classModel = classObj.getModel();
+        let existing = await this.getClass(classModel.name);
+        if ( !existing?.length ) {
+            let result = await this.createDoc(null, classObj.getType(), classObj.getModel());
+            return result;
+        } else {
+            return existing[0]._id;
+        } 
     }
 
     async updateClass( classObj ) {
         let result = await this.createDoc(classObj.getId(), classObj.getType(), classObj.getModel());
+        return result;
+    }
+
+    async findDocument( selector, skip = undefined, limit = undefined ) {
+        let fields = Object.keys(selector);
+        try {
+            let indexResult = await this.db.createIndex({
+                index: { fields: fields }
+            });
+    
+            let foundResult = await this.db.find({
+                selector: selector,
+                skip: skip,
+                limit: limit
+            });
+    
+            console.log("findDocument - found", foundResult);
+            let result = { docs: foundResult.docs, selector, skip, limit };
+            return result;
+        } catch (e) {
+            console.log("findDocument - error",e);
+            return {error: e.toString(),selector, skip, limit};
+        }
+    }
+
+    async getClass( className ) {
+        let selector = {
+            type: { $eq: "class" },
+            name: { $eq: className }
+        };
+
+        let result = await this.findDocument(selector);
+        return result.docs[0];
+    }
+
+    async getAllClasses() {
+        let selector = {
+            type: { $eq: "class" },
+        };
+
+        let result = await this.findDocument(selector);
+        return result.docs;
+    }
+
+    async getClasses( classNames ) {
+        let allClasses = await this.getAllClasses();
+        let result = allClasses.filter( classObj => classNames.includes(classObj.name) );
         return result;
     }
     ////////////////////////////////////////////////////

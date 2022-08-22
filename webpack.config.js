@@ -80,7 +80,9 @@ const config = {
       "os": require.resolve("os-browserify/browser"),
       "stream": require.resolve("stream-browserify"),
       "util": require.resolve("util"),
-      "buffer": require.resolve("buffer")
+      "buffer": require.resolve("buffer"),
+      "path": require.resolve('path-browserify'),
+      "assert": require.resolve("assert")
     },
     extensions: [
       '.js',
