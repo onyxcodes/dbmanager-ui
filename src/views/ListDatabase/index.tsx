@@ -20,7 +20,7 @@ interface ListDabaseProps {
 }
 const ListDatabase = (props: ListDabaseProps) => {
     const dispatch = useDispatch();
-    const databaseList = useSelector<StoreState, StoreState['dataModel']['databaseList']>(s => s.dataModel.databaseList);
+    const databaseList = useSelector<StoreState, DataModelState['databaseList']>(s => s.dataModel.databaseList);
 
     React.useEffect( () => {
         dispatch(getDatabaseList(true));
