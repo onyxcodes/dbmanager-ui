@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { UserOutlined } from '@ant-design/icons';
-
 import Header, { HeaderProps } from '../../commons/Header';
 import MainMenu from '../../MainMenu';
-
+import StatefulBread from '../../commons/StatefulBread';
 
 interface MainHeaderProps extends HeaderProps {
+    //
 }
 const MainHeader = (props: MainHeaderProps) => {
     const mainItems = [
@@ -32,6 +32,7 @@ const MainHeader = (props: MainHeaderProps) => {
     }
     return(
         <Header type='main' {...props}
+            breadcrumb={<StatefulBread showHome/>}
             extra={<MainMenu items={mainItems} handleClick={handleClick}/>}
         />
     )
