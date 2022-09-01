@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DatabaseView from '../DatabaseView';
 import { StoreState } from '../../store';
 import logger from '../../utils/logger';
+import ClassView from '../ClassView';
 
 const App = () => {
 	const location = useLocation();
@@ -48,6 +49,7 @@ const App = () => {
 					<Route path="/" element={<ListDatabase/>} />
 					<Route path="/db">
 						<Route path=":databaseName" element={<DatabaseView/>} />
+						<Route path=":databaseName/class/:className" element={<ClassView/>} />
 					</Route>
 				</Routes>
 		</Layout>);
