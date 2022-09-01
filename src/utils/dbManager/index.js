@@ -111,6 +111,15 @@ class DbManager {
         
     }
 
+    async getInfo () {
+        try {
+            let result = await this.db.info();
+            return result;
+        } catch (e) {
+            logger.error({'error': e}, 'getInfo - Error while retrieving database info');
+        }
+    }
+
     // // /**
     //  * @type PouchDB.Database<{}>
     //  */
