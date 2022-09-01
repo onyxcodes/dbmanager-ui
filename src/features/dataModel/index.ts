@@ -4,6 +4,7 @@ import getClassList from './getClassList';
 import addDatabase from './addDatabase';
 import addClass from './addClass';
 import loadDatabase from './loadDatabase';
+import loadClass from './loadClass';
 import DbManager from '../../utils/dbManager';
 
 export interface DataModelState {
@@ -25,6 +26,13 @@ export interface DataModelState {
             "doc_count": number,
             "update_seq": number
         } | null;
+    },
+    currentClass: {
+        pending: boolean;
+        name: string | null;
+        description?: string;
+        schema: [];
+        type?: 'class' | 'superclass'
     }
 }
 
@@ -43,6 +51,11 @@ const initialState = {
         pending: false,
         name: null,
         info: null
+    },
+    currentClass: {
+        pending: false,
+        name: null,
+        schema: []
     }
 } as DataModelState;
 
@@ -90,6 +103,20 @@ const reducer = createReducer( initialState, builder => {
             state.classAddition.pending = initialState.classAddition.pending;
             state.classAddition.lastValue = action.payload;
         })
+        .addCase(loadClass.pending, (state, action) => {
+            state.currentClass.pending = true;
+            state.currentClass.name = initialState.currentClass.name;
+            state.currentClass.description = initialState.currentClass.description;
+            state.currentClass.schema = initialState.currentClass.schema;
+            state.currentClass.type = initialState.currentClass.type;
+        })
+        .addCase(loadClass.fulfilled, (state, action) => {
+            state.currentClass.pending = initialState.currentClass.pending;
+            state.currentClass.name = action.payload.name;
+            state.currentClass.description = action.payload.description;
+            state.currentClass.schema = action.payload.schema;
+            state.currentClass.type = action.payload.type;
+        })
         // .addCase("removeDatabase", (state, action) => {
         //     // TODO2: create/refine prototype method on dbManager to delete database
         //     // TODO2: create async action that deletes database (through DbManager)
@@ -104,5 +131,5 @@ const reducer = createReducer( initialState, builder => {
 
 });
 
-export { loadDatabase, addClass, addDatabase, getDatabaseList, getClassList };
+export { loadDatabase, loadClass, addClass, addDatabase, getDatabaseList, getClassList };
 export default reducer;
