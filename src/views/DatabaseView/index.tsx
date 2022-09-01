@@ -6,6 +6,7 @@ import { StoreState } from '../../store';
 import { DataModelState, loadDatabase, addClass, getClassList } from '../../features/dataModel';
 import { useParams } from 'react-router-dom';
 import usePromptNotify from '../../components/commons/usePromptNotify'
+import ClassAccordion from '../../components/lists/ClassAccordion';
 
 
 interface DatabaseViewProps {
@@ -65,7 +66,7 @@ const DatabaseView = ( props:DatabaseViewProps ) => {
     return(
         <>
             <ViewHeader 
-                title={databaseName || 'Undefined'}
+                title={databaseName ? 'Database: '.concat(databaseName) : 'Database'}
                 actions={[
                     <Button onClick={() => refreshDatabases()}>Refresh</Button>,
                     <Button type='primary' onClick={() => prompt(true)}>Add class</Button>
@@ -77,6 +78,7 @@ const DatabaseView = ( props:DatabaseViewProps ) => {
                 <li>Document count: {databaseData.info?.doc_count}</li>
                 <li>Update sequential: {databaseData.info?.update_seq}</li>
             </ul>}
+            <ClassAccordion databaseName={databaseName} classList={classList}/>
             </Layout.Content>
             {wrapper}
         </>
