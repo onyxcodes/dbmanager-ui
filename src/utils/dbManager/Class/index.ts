@@ -1,3 +1,4 @@
+import DbManager from '..';
 import Attribute from '../Attribute'
 // import DbManager from '..';
 
@@ -6,10 +7,24 @@ const SUPERCLASS_TYPE = "superclass";
 const CLASS_TYPES = [CLASS_TYPE, SUPERCLASS_TYPE];
 
 class Class {
-    constructor(db = null, name, type = CLASS_TYPE, title = name, parentClassName = null) {
+    db?: DbManager | null;
+    name: string;
+    type: 'class' | 'superclass';
+    title: string;
+    attributes: Attribute[];
+    id: string | null;
+    parentClass: null;
+
+    constructor(
+        db: DbManager | null = null,
+        name: string,
+        type: 'class' | 'superclass' = CLASS_TYPE,
+        title = name,
+        parentClassName = null
+    ) {
         this.name = name,
             this.title = title,
-            this.setType(type),
+            this.type = type,
             this.attributes = [],
             this.db = null,
             this.id = null,
@@ -19,7 +34,8 @@ class Class {
         }
     }
 
-    static async build( classObj ) {
+
+    static async build( classObj: Class ) {
         let db = classObj.getDb();
         if ( db ) {
             // if (parentClassName) this.setParentClass(parentClassName);
@@ -32,7 +48,7 @@ class Class {
 
     }
 
-    setId( id ) {
+    setId( id: string ) {
         if ( id ) this.id = id;
         else throw Error("Missing id");
     } 
@@ -58,7 +74,13 @@ class Class {
     }
 
     getModel() {
-        let model = {};
+        let model: {
+            name?: string;
+            description?: string;
+            schema?: {}[];
+            type?: string,
+        } = {};
+
         model["name"] = this.getName();
         model["description"] = this.getTitle();
         model["schema"] = [];
@@ -71,39 +93,30 @@ class Class {
         return model;
     }
 
-    setType( type ) {
-        if ( this.checkTypeValidity(type) ) {
-            this.type = type;
-            // if ( this.type === SUPERCLASS_TYPE ) this.isSuperclass = true;
-        } else throw Error("Class - Invalid type: "+type)
+    // TODO: should be no longer needed
+    setType( type: 'class' | 'superclass' ) {
+        this.type = type;
         // return this?
     }
 
-    async getSuperClassIfExists( superClassName ) {
-        let db = this.getDb();
-        let schema = await db.getClassModel(SUPERCLASS_TYPE, superClassName);
-        return null; // TODO: change into superclass object
-    }
+    // TODO
+    // async getSuperClassIfExists( superClassName ) {
+    //     let db = this.getDb();
+    //     let schema = await db.getClassModel(SUPERCLASS_TYPE, superClassName);
+    //     return null; // TODO: change into superclass object
+    // }
 
-    async setParentClass( superClassName ) {
-        let parentClass = await this.getSuperClassIfExists(superClassName);
-        if ( parentClass ) {
-            // ereditate all attributes
-            // parentClass.getAttributes()
-            this.parentClass = parentClass;
-        }
-    }
+    // async setParentClass( superClassName ) {
+    //     let parentClass = await this.getSuperClassIfExists(superClassName);
+    //     if ( parentClass ) {
+    //         // ereditate all attributes
+    //         // parentClass.getAttributes()
+    //         this.parentClass = parentClass;
+    //     }
+    // }
 
-    checkTypeValidity( type ) {
-        let validity = false;
-        if ( CLASS_TYPES.includes(type) ) {
-            validity = true;
-        }
-        validity = type == CLASS_TYPE;
-        return validity;
-    }
 
-    getAttributes( ...names ) {
+    getAttributes( ...names: string[] ) {
         let attributes = [ ];
         for ( let attribute of this.attributes ) {
             if ( names.length > 0 ) {
@@ -119,9 +132,9 @@ class Class {
         return attributes
     }
 
-    hasAllAttributes( ...names ) {
+    hasAllAttributes( ...names: string[] ) {
         let result = false;
-        let attributes = this.getAttributes(names);
+        let attributes = this.getAttributes(...names);
         for ( let attribute of attributes ) {
             result = names.includes(attribute.getName())
             if ( !result ) break;
@@ -129,9 +142,9 @@ class Class {
         return result;
     }
 
-    hasAnyAttributes( ...names ) {
+    hasAnyAttributes( ...names: string[] ) {
         let result = false;
-        let attributes = this.getAttributes(names);
+        let attributes = this.getAttributes(...names);
         for ( let attribute of attributes ) {
             result = names.includes(attribute.getName())
             if ( result ) break;
@@ -140,7 +153,7 @@ class Class {
     }
 
     // interface of hasAnyAttributes
-    hasAttribute( name ) {
+    hasAttribute( name: string ) {
         return this.hasAnyAttributes( name )
     }
 
@@ -148,7 +161,7 @@ class Class {
      * 
      * @param {Attribute} attribute 
      */
-    async addAttribute( attribute ) {
+    async addAttribute( attribute: Attribute ) {
         try {
             let name = attribute.getName();
             if ( !this.hasAttribute(name) ) {
@@ -162,11 +175,11 @@ class Class {
                 return this; // return class object
             } else throw Error("Attribute with name "+name+" already exists within this Class")
         } catch (e) {
-            throw Error(e);
+            throw Error(''+e);
         }
     }
 
-    async addNewAttribute( name, type ) {
+    async addNewAttribute( name: string, type: string ) {
         let attribute = new Attribute(this, name, type);
         await this.addAttribute(attribute);
     }
