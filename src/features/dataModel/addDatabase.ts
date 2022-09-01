@@ -9,7 +9,6 @@ const action = createAsyncThunk(
         let db = new DbManager(name);
         db = await DbManager.build(db);
         let databaseList = new LocalStorageList('databaseList').addElement(db.getName());
-        debugger;
         await thunkApi.dispatch(getDatabaseList(true));
         return name;
     }
