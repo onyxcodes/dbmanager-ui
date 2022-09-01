@@ -351,15 +351,16 @@ class DbManager {
         return result;
     }
 
-    async findDocument( selector, skip = undefined, limit = undefined ) {
-        let fields = Object.keys(selector);
+    async findDocument( selector, fields = undefined, skip = undefined, limit = undefined ) {
+        let indexFields = Object.keys(selector);
         try {
             let indexResult = await this.db.createIndex({
-                index: { fields: fields }
+                index: { fields: indexFields }
             });
     
             let foundResult = await this.db.find({
                 selector: selector,
+                fields: fields,
                 skip: skip,
                 limit: limit
             });
@@ -387,8 +388,10 @@ class DbManager {
         let selector = {
             type: { $eq: "class" },
         };
+        // TODO: parentClass may be interesting
+        let fields = ['_id', 'name', 'description'];
 
-        let result = await this.findDocument(selector);
+        let result = await this.findDocument(selector, fields);
         return result.docs;
     }
 
